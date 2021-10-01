@@ -4,9 +4,10 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 client = MongoClient("mongodb://localhost:27017/")
-db = client.dbStock
+db = client.dbtimeattack
 
 from datetime import datetime
+
 
 @app.route('/')
 def index():
@@ -16,7 +17,7 @@ def index():
 @app.route('/post', methods=['POST'])
 def save_post():
     today = datetime.now()
-    mytime = today.strftime('%Y-%m-%d')
+    mytime = today.strftime('%Y-%m-%d-%H-%M-%S')
 
     # idx_receive = request.form['idx_give']
     title_receive = request.form['title_give']
@@ -31,18 +32,21 @@ def save_post():
 
     }
     db.articles.insert_one(doc)
-    return {"result": "success"}
+    return {"result": "success", "msg": "저장 완료!"}
 
 
 @app.route('/show', methods=['GET'])
 def get_post():
     articles = list(db.articles.find({}, {'_id': False}))
+    articles.reverse()
     return jsonify({'all_articles': articles})
 
 
-@app.route('/post', methods=['DELETE'])
+@app.route('/del', methods=['DELETE'])
 def delete_post():
-    return {"result": "success"}
+    idx_receive = request.form['idx_give']
+    # db.articles.delete_one({'idx': idx_receive})
+    return {"result": "success", "msg": "삭제 완료!"}
 
 
 if __name__ == "__main__":

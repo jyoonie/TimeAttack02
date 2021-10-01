@@ -5,7 +5,6 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="/static/images/favicon.png">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -53,12 +52,11 @@
     </style>
     <script>
         $(document).ready(function () {
-            $("#cards-box").html("");
+
             showArticles();
         });
 
         function openClose() {
-            // id 값 post-box의 display 값이 block 이면(= 눈에 보이면)
             if ($("#post-box").css("display") == "block") {
                 $("#post-box").hide();
                 $("#btn-post-box").text("포스팅 박스 열기");
@@ -68,6 +66,7 @@
             }
         }
 
+
         function postArticle() {
             let title = $('#post-url').val()
             let content = $('#post-comment').val()
@@ -76,7 +75,7 @@
                 type: "POST",
                 url: "/post",
                 data: {title_give: title, content_give: content},
-                success: function (response) { // 성공하면
+                success: function (response) {
                     alert(response["msg"]);
                     window.location.reload()
                 }
@@ -85,7 +84,6 @@
         }
 
         function showArticles() {
-            // 주문목록 보기 API 연결
             $.ajax({
                 type: "GET",
                 url: "/show",
@@ -94,30 +92,38 @@
                     let articles = response['all_articles']
 
                     for (let i = 0; i < articles.length; i++) {
-                        let idx = articles[i]['idx'];
+                        // let idx = articles[i]['idx'];
                         let title = articles[i]['title'];
-                        let date = articles[i]['content'];
+                        let reg_date = articles[i]['reg_date'];
 
-                        let temp_html = `<tr id="rows">
-                                            <th scope="col">${idx}</th>
-                                            <th scope="col">${title}</th>
-                                            <th scope="col">${date}</th>
-                                            <th scope="col"><button type="button" class="btn btn-primary" onclick="deleteArticle()">삭제</button>\`</th>
-                                        </tr>`
+                        let temp_html = `<tr>
+                                            <td>${i+1}</td>
+                                            <td>${title}</td>
+                                            <td>${reg_date}</td>
+                                            <td><button onclick="deleteArticle(${i+1})" id="btn-post-box" type="button" class="btn btn-danger">삭제
+            </button></td>
+                                         </tr>`
 
-                        $('#body').append(temp_html)
+
+                        $('#list-post').append(temp_html)
+
                     }
                 }
             })
         }
 
-
-        function makeListPost(post, index) {
-        }
-
-
         function deleteArticle(idx) {
+            let index = idx
 
+            $.ajax({
+                type: "POST",
+                url: "/del",
+                data: {idx_give: index},
+                success: function (response) { // 성공하면
+                    alert(response["msg"]);
+                    window.location.reload()
+                }
+            })
         }
     </script>
 
@@ -148,12 +154,14 @@
     </div>
     <table class="table">
         <thead>
+
         <tr id="rows">
             <th scope="col">#</th>
             <th scope="col">타이틀</th>
             <th scope="col">날짜</th>
             <th scope="col">삭제</th>
         </tr>
+
         </thead>
         <tbody id="list-post">
 
